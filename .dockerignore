@@ -1,0 +1,12 @@
+# positive ignore
+/target
+/vendor
+
+# negative ignore
+/*
+!/api
+!/cmd
+!/pkg
+!/Gopkg.*
+!/Makefile
+!/version

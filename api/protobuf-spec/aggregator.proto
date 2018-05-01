@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package aggregator;
+
+service Aggregator {
+  rpc Aggregate(AggregateRequest) returns (AggregateResponse) {}
+}
+
+message AggregateRequest {
+  uint32 number = 1;
+}
+
+message AggregateResponse {
+  repeated ColorRange ranges = 1;
+}
+
+message ColorRange {
+  uint32 cold = 1;
+  uint32 hot = 2;
+}

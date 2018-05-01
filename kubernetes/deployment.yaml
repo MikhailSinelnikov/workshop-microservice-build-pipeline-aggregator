@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: aggregator-{{version}}
+  labels:
+    app: aggregator
+    version: {{version}}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: aggregator
+      version: {{version}}
+  template:
+    metadata:
+      labels:
+        app: aggregator
+        version: {{version}}
+    spec:
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 0
+      imagePullSecrets:
+      - name: registry-aggregator
+      containers:
+      - name: main
+        image: {{image}}
+        imagePullPolicy: Always
+        args:
+        - --colorer
+        - colorer:10000
+        resources:
+          limits:
+            memory: 256Mi
+          requests:
+            cpu: 10m
+            memory: 256Mi
+        ports:
+        - name: grpc
+          containerPort: 11000

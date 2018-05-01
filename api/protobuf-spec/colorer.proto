@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package colorer;
+
+service Colorer {
+  rpc GetColor(GetColorRequest) returns (GetColorResponse) {}
+}
+
+message GetColorRequest {
+}
+
+message GetColorResponse {
+  uint32 cold = 1;
+  uint32 hot = 2;
+}
