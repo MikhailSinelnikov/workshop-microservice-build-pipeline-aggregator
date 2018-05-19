@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	mwgrpc "github.com/grpc-ecosystem/go-grpc-middleware"
+	otgrpc "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
@@ -52,9 +54,21 @@ func (s *aggregatorServer) Aggregate(ctx context.Context, msg *AggregateRequest)
 }
 
 func NewServer(colorerAddr string) AggregatorServer {
+	// specify dependency connection parameters
+	opts := []grpc.DialOption{
+		// non-TLS connection
+		grpc.WithInsecure(),
+
+		// open tracing integration
+		grpc.WithUnaryInterceptor(mwgrpc.ChainUnaryClient(
+			otgrpc.UnaryClientInterceptor(),
+		)),
+		grpc.WithStreamInterceptor(mwgrpc.ChainStreamClient(
+			otgrpc.StreamClientInterceptor(),
+		)),
+	}
+
 	// establish connection
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
 	conn, err := grpc.Dial(colorerAddr, opts...)
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
@@ -63,6 +77,7 @@ func NewServer(colorerAddr string) AggregatorServer {
 	// create client stub
 	colorerClient := colorerpb.NewColorerClient(conn)
 
+	// return new initialized aggregator server
 	s := &aggregatorServer{
 		colorerAddr:   colorerAddr,
 		colorerConn:   conn,

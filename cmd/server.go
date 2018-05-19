@@ -12,6 +12,8 @@ import (
 	"log"
 	"net"
 
+	mwgrpc "github.com/grpc-ecosystem/go-grpc-middleware"
+	otgrpc "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	"google.golang.org/grpc"
 
 	pb "github.com/kublr/workshop-microservice-build-pipeline-aggregator/pkg/aggregator"
@@ -23,13 +25,31 @@ var (
 )
 
 func main() {
+	// parse flags
 	flag.Parse()
+
+	// prepare requested port listener
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	var opts []grpc.ServerOption
+
+	// prepare server options including interceptors
+	opts := []grpc.ServerOption{
+		grpc.StreamInterceptor(mwgrpc.ChainStreamServer(
+			otgrpc.StreamServerInterceptor(),
+		)),
+		grpc.UnaryInterceptor(mwgrpc.ChainUnaryServer(
+			otgrpc.UnaryServerInterceptor(),
+		)),
+	}
+
+	// create gRPC server
 	grpcServer := grpc.NewServer(opts...)
+
+	// register gRPC procedures handler
 	pb.RegisterAggregatorServer(grpcServer, pb.NewServer(*colorerAddr))
+
+	// start server
 	grpcServer.Serve(lis)
 }
