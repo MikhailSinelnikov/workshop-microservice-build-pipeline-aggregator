@@ -9,7 +9,7 @@ timestamps {
         label: 'demoapp',
         containers: [
             containerTemplate(name: 'docker', image: 'docker', ttyEnabled: true, command: 'cat', args: '-v'),
-            containerTemplate(name: 'helm', image: 'dtzar/helm-kubectl:2.7.2', ttyEnabled: true, command: 'cat')
+            containerTemplate(name: 'helm', image: 'dtzar/helm-kubectl:2.9.1', ttyEnabled: true, command: 'cat')
         ],
         volumes: [
             // this is necessary for docker build to work
@@ -49,10 +49,10 @@ timestamps {
 
                     // Gen necessary tools
                     sh """
-                        wget https://github.com/istio/istio/releases/download/0.7.1/istio-0.7.1-linux.tar.gz
-                        tar zxvf istio-0.7.1-linux.tar.gz
+                        wget https://github.com/istio/istio/releases/download/1.0.3/istio-1.0.3-linux.tar.gz
+                        tar zxvf istio-1.0.3-linux.tar.gz
                         mkdir -p ~/.local/bin
-                        cp istio-0.7.1/bin/istioctl ~/.local/bin/
+                        cp istio-1.0.3/bin/istioctl ~/.local/bin/
                         chmod a+x ~/.local/bin/istioctl
                     """
                 }
